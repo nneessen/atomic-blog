@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { faker } from "@faker-js/faker";
 import { usePosts, PostProvider } from "./PostProvider";
 
@@ -30,6 +30,10 @@ function App() {
     };
   }, [posts.length]);
 
+  const handleAddPost = useCallback(function handleAddPost(post) {
+    setPosts((posts) => [post, ...posts]);
+  }, []);
+
   return (
     <section>
       <button
@@ -42,7 +46,7 @@ function App() {
       <PostProvider>
         <Header />
         <Main />
-        <Archive archiveOptions={archiveOptions} />
+        <Archive archiveOptions={archiveOptions} onAddPost={handleAddPost} />
         <Footer />
       </PostProvider>
     </section>
@@ -145,7 +149,10 @@ function List() {
   );
 }
 
-const Archive = memo(function Archive({ archiveOptions: { show, title } }) {
+const Archive = memo(function Archive({
+  archiveOptions: { show, title },
+  onAddPost,
+}) {
   const [posts] = useState(() =>
     Array.from({ length: 30000 }, () => createRandomPost())
   );
@@ -166,6 +173,7 @@ const Archive = memo(function Archive({ archiveOptions: { show, title } }) {
               <p>
                 <strong>{post.title}:</strong> {post.body}
               </p>
+              <button onClick={() => onAddPost(post)}>Add post</button>
             </li>
           ))}
         </ul>
