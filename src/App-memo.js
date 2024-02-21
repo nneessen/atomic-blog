@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { faker } from "@faker-js/faker";
 import { usePosts, PostProvider } from "./PostProvider";
 
@@ -10,6 +10,10 @@ function createRandomPost() {
 }
 
 function App() {
+  const [posts, setPosts] = useState(() =>
+    Array.from({ length: 10 }, () => createRandomPost())
+  );
+
   const [isFakeDark, setIsFakeDark] = useState(false); // hook 1
 
   useEffect(
@@ -18,6 +22,13 @@ function App() {
     },
     [isFakeDark]
   );
+
+  const archiveOptions = useMemo(() => {
+    return {
+      show: false,
+      title: `Post archive in additon to ${posts.length} main posts`,
+    };
+  }, [posts.length]);
 
   return (
     <section>
@@ -31,7 +42,7 @@ function App() {
       <PostProvider>
         <Header />
         <Main />
-        <Archive show={false} />
+        <Archive archiveOptions={archiveOptions} />
         <Footer />
       </PostProvider>
     </section>
@@ -134,7 +145,7 @@ function List() {
   );
 }
 
-const Archive = memo(function Archive({ show }) {
+const Archive = memo(function Archive({ archiveOptions: { show, title } }) {
   const [posts] = useState(() =>
     Array.from({ length: 30000 }, () => createRandomPost())
   );
@@ -143,7 +154,7 @@ const Archive = memo(function Archive({ show }) {
 
   return (
     <aside>
-      <h2>Post archive</h2>
+      <h2>{title}</h2>
       <button onClick={() => setShowArchive((s) => !s)}>
         {showArchive ? "Hide archive posts" : "Show archive posts"}
       </button>
